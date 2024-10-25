@@ -5,6 +5,7 @@ import 'package:websocket/multiplayer/core/ping/ping_core.dart';
 import 'package:websocket/multiplayer/net/handler.dart';
 import 'package:websocket/multiplayer/net/websocket.dart';
 import 'package:websocket/multiplayer/protocol/messages/server_message.dart';
+import 'package:web_socket_channel/status.dart';
 
 enum ConnectionStatus {
   conectando,
@@ -33,12 +34,9 @@ class MainStore {
 
   final pingState = ValueNotifier<String>('');
 
-  final connectionErrorState = ValueNotifier<String?>(null);
-
   void _initialize() {
     client.onOpen.listen((_) {
       _setConnectionStatus(ConnectionStatus.conectado);
-      connectionErrorState.value = null;
     });
 
     client.onClosed.listen(
@@ -47,7 +45,9 @@ class MainStore {
       },
       onError: (error) {
         _setConnectionStatus(ConnectionStatus.desconectado);
-        connectionErrorState.value = error.toString();
+        showAlertDialog(
+          error.toString(),
+        );
       },
     );
 
@@ -63,16 +63,25 @@ class MainStore {
     client.connectToServer();
   }
 
+  void disconnectToServer() {
+    _setConnectionStatus(ConnectionStatus.conectando);
+
+    client.disconnectToServer(
+      normalClosure,
+      'Desconexão solicitada pelo cliente',
+    );
+  }
+
   void sendPing() {
     final pingCore = dependency.get<PingCore>();
 
     try {
       pingCore.send();
     } catch (e) {
-      connectionErrorState.value = 'Erro ao enviar ping: $e';
       _setConnectionStatus(
         ConnectionStatus.desconectado,
       );
+
       debugPrint("Erro ao enviar ping: $e");
     }
   }

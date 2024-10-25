@@ -60,99 +60,73 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Websocket'),
-      ),
-      body: Center(
+      body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ValueListenableBuilder<ConnectionStatus>(
-              valueListenable: store.connectionState,
-              builder: (context, status, child) {
-                String connectionStatus = 'Conectando...';
-
-                if (status == ConnectionStatus.conectado) {
-                  connectionStatus = 'Conectado';
-                } else if (status == ConnectionStatus.desconectado) {
-                  connectionStatus = 'Desconectado';
-                }
-
-                return Text(
-                  connectionStatus,
-                  style: const TextStyle(
-                    fontSize: 24,
-                  ),
-                );
-              },
-            ),
-            ValueListenableBuilder<String?>(
-              valueListenable: store.connectionErrorState,
-              builder: (context, error, child) {
-                if (error != null) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      error,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.red,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-            ValueListenableBuilder(
-              valueListenable: store.connectionState,
-              builder: (context, value, _) {
-                if (value == ConnectionStatus.conectado) {
-                  return Column(
-                    children: [
-                      ValueListenableBuilder(
-                        valueListenable: store.pingState,
-                        builder: (context, value, _) {
-                          return Text(value);
-                        },
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          store.sendPing();
-                        },
-                        child: const Text(
-                          'Enviar Ping',
-                        ),
-                      ),
-                    ],
-                  );
-                }
-
-                return const SizedBox();
-              },
-            ),
-          ],
+          children: [],
         ),
       ),
-      floatingActionButton: ValueListenableBuilder(
-        valueListenable: store.connectionState,
-        builder: (context, value, _) {
-          return FloatingActionButton(
-            onPressed: value == ConnectionStatus.conectando ||
-                    value == ConnectionStatus.conectado
-                ? null
-                : () {
-                    store.connectToServer();
-                  },
-            backgroundColor: store.connectionStatusColor(
-              value,
-            ),
-            child: const Icon(
-              Icons.dns,
-            ),
-          );
-        },
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          ValueListenableBuilder(
+            valueListenable: store.connectionState,
+            builder: (context, value, _) {
+              if (value == ConnectionStatus.conectado) {
+                return Padding(
+                  padding: const EdgeInsets.only(
+                    bottom: 10.0,
+                  ),
+                  child: FloatingActionButton(
+                    onPressed: store.sendPing,
+                    backgroundColor: Colors.green,
+                    child: ValueListenableBuilder(
+                      valueListenable: store.pingState,
+                      builder: (context, value, _) {
+                        String ping = value;
+
+                        if (value.isEmpty) {
+                          return const Icon(
+                            Icons.sync,
+                            color: Colors.white,
+                          );
+                        }
+
+                        return Text(
+                          ping,
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(
+                            color: Colors.white,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                );
+              }
+
+              return const SizedBox();
+            },
+          ),
+          ValueListenableBuilder(
+            valueListenable: store.connectionState,
+            builder: (context, value, _) {
+              return FloatingActionButton(
+                onPressed: value == ConnectionStatus.conectando ||
+                        value == ConnectionStatus.conectado
+                    ? store.disconnectToServer
+                    : store.connectToServer,
+                backgroundColor: store.connectionStatusColor(
+                  value,
+                ),
+                child: const Icon(
+                  Icons.dns,
+                  color: Colors.white,
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
