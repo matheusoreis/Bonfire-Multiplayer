@@ -77,29 +77,44 @@ class _MyHomePageState extends State<MyHomePage> {
                   padding: const EdgeInsets.only(
                     bottom: 10.0,
                   ),
-                  child: FloatingActionButton(
+                  child: FloatingActionButton.extended(
                     onPressed: store.sendPing,
                     backgroundColor: Colors.green,
-                    child: ValueListenableBuilder(
-                      valueListenable: store.pingState,
-                      builder: (context, value, _) {
-                        String ping = value;
-
-                        if (value.isEmpty) {
-                          return const Icon(
-                            Icons.sync,
-                            color: Colors.white,
-                          );
-                        }
-
-                        return Text(
-                          ping,
-                          textAlign: TextAlign.end,
-                          style: const TextStyle(
-                            color: Colors.white,
+                    label: Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            right: 10,
                           ),
-                        );
-                      },
+                          child: Text(
+                            store.conectionStatusText(value).$2,
+                            style: const TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: store.pingState,
+                          builder: (context, value, _) {
+                            String ping = value;
+
+                            if (value.isEmpty) {
+                              return const Icon(
+                                Icons.sync,
+                                color: Colors.white,
+                              );
+                            }
+
+                            return Text(
+                              ping,
+                              textAlign: TextAlign.end,
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 );
@@ -111,7 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ValueListenableBuilder(
             valueListenable: store.connectionState,
             builder: (context, value, _) {
-              return FloatingActionButton(
+              return FloatingActionButton.extended(
                 onPressed: value == ConnectionStatus.conectando ||
                         value == ConnectionStatus.conectado
                     ? store.disconnectToServer
@@ -119,9 +134,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 backgroundColor: store.connectionStatusColor(
                   value,
                 ),
-                child: const Icon(
-                  Icons.dns,
-                  color: Colors.white,
+                label: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        right: 10,
+                      ),
+                      child: Text(
+                        store.conectionStatusText(value).$1,
+                        style: const TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const Icon(
+                      Icons.dns,
+                      color: Colors.white,
+                    ),
+                  ],
                 ),
               );
             },
