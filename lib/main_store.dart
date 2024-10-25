@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:websocket/misc/app_dependencies.dart';
 import 'package:websocket/multiplayer/core/alert/alert_core.dart';
 import 'package:websocket/multiplayer/core/ping/ping_core.dart';
 import 'package:websocket/multiplayer/net/handler.dart';
@@ -26,16 +27,18 @@ class MainStore {
 
   late BuildContext context;
 
-  final connectionStatus = ValueNotifier<ConnectionStatus>(
+  final connectionState = ValueNotifier<ConnectionStatus>(
     ConnectionStatus.desconectado,
   );
 
-  final connectionError = ValueNotifier<String?>(null);
+  final pingState = ValueNotifier<String>('');
+
+  final connectionErrorState = ValueNotifier<String?>(null);
 
   void _initialize() {
     client.onOpen.listen((_) {
       _setConnectionStatus(ConnectionStatus.conectado);
-      connectionError.value = null;
+      connectionErrorState.value = null;
     });
 
     client.onClosed.listen(
@@ -44,7 +47,7 @@ class MainStore {
       },
       onError: (error) {
         _setConnectionStatus(ConnectionStatus.desconectado);
-        connectionError.value = error.toString();
+        connectionErrorState.value = error.toString();
       },
     );
 
@@ -61,10 +64,12 @@ class MainStore {
   }
 
   void sendPing() {
+    final pingCore = dependency.get<PingCore>();
+
     try {
-      PingCore().send();
+      pingCore.send();
     } catch (e) {
-      connectionError.value = 'Erro ao enviar ping: $e';
+      connectionErrorState.value = 'Erro ao enviar ping: $e';
       _setConnectionStatus(
         ConnectionStatus.desconectado,
       );
@@ -73,7 +78,7 @@ class MainStore {
   }
 
   void _setConnectionStatus(ConnectionStatus status) {
-    connectionStatus.value = status;
+    connectionState.value = status;
   }
 
   Color connectionStatusColor(ConnectionStatus status) {

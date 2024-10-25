@@ -11,7 +11,7 @@ class AlertIncoming implements IncomingInterface {
     required WebsocketClient client,
     required ServerMessage serverMessage,
   }) {
-    final AlertCore alertCore = dependency.get<AlertCore>();
+    final alertCore = dependency.get<AlertCore>();
 
     final message = serverMessage.getString();
     final disconnect = serverMessage.getInt8();

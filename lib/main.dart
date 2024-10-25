@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ValueListenableBuilder<ConnectionStatus>(
-              valueListenable: store.connectionStatus,
+              valueListenable: store.connectionState,
               builder: (context, status, child) {
                 String connectionStatus = 'Conectando...';
 
@@ -87,7 +87,7 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ValueListenableBuilder<String?>(
-              valueListenable: store.connectionError,
+              valueListenable: store.connectionErrorState,
               builder: (context, error, child) {
                 if (error != null) {
                   return Padding(
@@ -106,16 +106,26 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             ValueListenableBuilder(
-              valueListenable: store.connectionStatus,
+              valueListenable: store.connectionState,
               builder: (context, value, _) {
                 if (value == ConnectionStatus.conectado) {
-                  return ElevatedButton(
-                    onPressed: () {
-                      store.sendPing();
-                    },
-                    child: const Text(
-                      'Enviar Ping',
-                    ),
+                  return Column(
+                    children: [
+                      ValueListenableBuilder(
+                        valueListenable: store.pingState,
+                        builder: (context, value, _) {
+                          return Text(value);
+                        },
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          store.sendPing();
+                        },
+                        child: const Text(
+                          'Enviar Ping',
+                        ),
+                      ),
+                    ],
                   );
                 }
 
@@ -126,7 +136,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       floatingActionButton: ValueListenableBuilder(
-        valueListenable: store.connectionStatus,
+        valueListenable: store.connectionState,
         builder: (context, value, _) {
           return FloatingActionButton(
             onPressed: value == ConnectionStatus.conectando ||
