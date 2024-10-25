@@ -66,20 +66,81 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          ValueListenableBuilder(
-            valueListenable: store.connectionState,
-            builder: (context, value, _) {
-              if (value == ConnectionStatus.conectado) {
-                return Padding(
-                  padding: const EdgeInsets.only(
-                    bottom: 10.0,
-                  ),
-                  child: FloatingActionButton.extended(
-                    onPressed: store.sendPing,
-                    backgroundColor: Colors.green,
+      floatingActionButton: SizedBox(
+        width: MediaQuery.of(context).size.width / 2,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: ValueListenableBuilder(
+                valueListenable: store.connectionState,
+                builder: (context, value, _) {
+                  if (value == ConnectionStatus.conectado) {
+                    return Padding(
+                      padding: const EdgeInsets.only(
+                        bottom: 10.0,
+                      ),
+                      child: FloatingActionButton.extended(
+                        onPressed: store.sendPing,
+                        backgroundColor: Colors.green,
+                        label: Row(
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.only(
+                                right: 10,
+                              ),
+                              child: Text(
+                                'Sincronizar',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            ValueListenableBuilder(
+                              valueListenable: store.pingState,
+                              builder: (context, value, _) {
+                                String ping = value;
+
+                                if (value.isEmpty) {
+                                  return const Icon(
+                                    Icons.sync,
+                                    color: Colors.white,
+                                  );
+                                }
+
+                                return Text(
+                                  ping,
+                                  textAlign: TextAlign.end,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
+
+                  return const SizedBox();
+                },
+              ),
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width,
+              child: ValueListenableBuilder(
+                valueListenable: store.connectionState,
+                builder: (context, value, _) {
+                  return FloatingActionButton.extended(
+                    onPressed: value == ConnectionStatus.conectando ||
+                            value == ConnectionStatus.conectado
+                        ? store.disconnectToServer
+                        : store.connectToServer,
+                    backgroundColor: store.connectionStatusColor(
+                      value,
+                    ),
                     label: Row(
                       children: [
                         Padding(
@@ -87,76 +148,24 @@ class _MyHomePageState extends State<MyHomePage> {
                             right: 10,
                           ),
                           child: Text(
-                            store.conectionStatusText(value).$2,
+                            store.conectionStatusText(value),
                             style: const TextStyle(
                               color: Colors.white,
                             ),
                           ),
                         ),
-                        ValueListenableBuilder(
-                          valueListenable: store.pingState,
-                          builder: (context, value, _) {
-                            String ping = value;
-
-                            if (value.isEmpty) {
-                              return const Icon(
-                                Icons.sync,
-                                color: Colors.white,
-                              );
-                            }
-
-                            return Text(
-                              ping,
-                              textAlign: TextAlign.end,
-                              style: const TextStyle(
-                                color: Colors.white,
-                              ),
-                            );
-                          },
+                        const Icon(
+                          Icons.dns,
+                          color: Colors.white,
                         ),
                       ],
                     ),
-                  ),
-                );
-              }
-
-              return const SizedBox();
-            },
-          ),
-          ValueListenableBuilder(
-            valueListenable: store.connectionState,
-            builder: (context, value, _) {
-              return FloatingActionButton.extended(
-                onPressed: value == ConnectionStatus.conectando ||
-                        value == ConnectionStatus.conectado
-                    ? store.disconnectToServer
-                    : store.connectToServer,
-                backgroundColor: store.connectionStatusColor(
-                  value,
-                ),
-                label: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        right: 10,
-                      ),
-                      child: Text(
-                        store.conectionStatusText(value).$1,
-                        style: const TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    const Icon(
-                      Icons.dns,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

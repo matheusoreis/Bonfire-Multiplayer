@@ -110,18 +110,16 @@ class MainStore {
     return color;
   }
 
-  (String, String) conectionStatusText(ConnectionStatus status) {
+  String conectionStatusText(ConnectionStatus status) {
     String connection = 'Conectar';
-    String ping = 'Sincronizar';
 
     if (status == ConnectionStatus.conectado) {
       connection = 'Desconectar';
-      ping = 'Novamente';
     } else if (status == ConnectionStatus.conectando) {
       connection = 'Conectando';
     }
 
-    return (connection, ping);
+    return connection;
   }
 
   void showAlertDialog(String message) {
